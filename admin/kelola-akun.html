@@ -1,0 +1,623 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Akun - Peduli Sehatku</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <img src="https://via.placeholder.com/100" alt="Logo Peduli Sehatku" class="logo">
+            <h1>Peduli Sehatku</h1>
+            <p>Portal Administrator</p>
+        </header>
+        
+        <nav class="navbar">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-link">Beranda</a>
+                </li>
+                <li class="nav-item">
+                    <a href="kelola-akun.html" class="nav-link">Kelola Akun</a>
+                </li>
+                <li class="nav-item">
+                    <a href="data-kesehatan.html" class="nav-link">Data Kesehatan</a>
+                </li>
+                <li class="nav-item" style="margin-left: auto;">
+                    <a href="#" class="nav-link" id="logoutBtn">Keluar</a>
+                </li>
+            </ul>
+        </nav>
+        
+        <main>
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="account-list">Daftar Akun</button>
+                <button class="tab-btn" data-tab="add-account">Tambah Akun Baru</button>
+            </div>
+            
+            <div class="tab-content active" id="account-list">
+                <h2 class="section-title">Kelola Akun Pengguna</h2>
+                
+                <div class="form-row mb-3">
+                    <div class="form-group">
+                        <label for="roleFilter">Filter Peran</label>
+                        <select id="roleFilter" class="form-select">
+                            <option value="all">Semua Peran</option>
+                            <option value="siswa">Siswa</option>
+                            <option value="guru">Guru</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="classFilter">Filter Kelas</label>
+                        <select id="classFilter" class="form-select">
+                            <option value="all">Semua Kelas</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="align-self: flex-end;">
+                        <button id="filterBtn" class="btn btn-primary">Terapkan Filter</button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="table" id="accountsTable">
+                        <thead>
+                            <tr>
+                                <th>Nama</th>
+                                <th>Username</th>
+                                <th>Peran</th>
+                                <th>Kelas</th>
+                                <th>Tanggal Dibuat</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6">Memuat data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="add-account">
+                <h2 class="section-title">Tambah Akun Baru</h2>
+                
+                <div class="form-container">
+                    <div id="accountStatusMessage" class="mb-3"></div>
+                    
+                    <form id="addAccountForm">
+                        <div class="form-group">
+                            <label for="name">Nama Lengkap</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <input type="text" id="username" name="username" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="password" id="password" name="password" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="role">Peran</label>
+                                <select id="role" name="role" class="form-select" required>
+                                    <option value="">Pilih Peran</option>
+                                    <option value="siswa">Siswa</option>
+                                    <option value="guru">Guru</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="classGroup">
+                                <label for="class">Kelas</label>
+                                <select id="class" name="class" class="form-select">
+                                    <option value="">Pilih Kelas</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Input kelas baru jika tidak ada di daftar -->
+                        <div class="form-group" id="newClassGroup" style="display: none;">
+                            <label for="newClass">Buat Kelas Baru</label>
+                            <input type="text" id="newClass" name="newClass" placeholder="contoh: 6A">
+                        </div>
+                        
+                        <div class="form-row mt-2 mb-1">
+                            <div class="form-group">
+                                <label for="createNewClass">
+                                    <input type="checkbox" id="createNewClass">
+                                    Buat kelas baru jika tidak ada di daftar
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row mt-3">
+                            <button type="submit" class="btn btn-primary">Simpan Akun</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Modal untuk edit akun -->
+            <div class="modal" id="editAccountModal">
+                <div class="modal-content">
+                    <span class="close-modal">&times;</span>
+                    <h3>Edit Akun</h3>
+                    <div id="editAccountContent">
+                        <form id="editAccountForm">
+                            <input type="hidden" id="editUserId">
+                            
+                            <div class="form-group">
+                                <label for="editName">Nama Lengkap</label>
+                                <input type="text" id="editName" name="editName" required>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="editUsername">Username</label>
+                                    <input type="text" id="editUsername" name="editUsername" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editPassword">Password Baru (kosongkan jika tidak diubah)</label>
+                                    <input type="password" id="editPassword" name="editPassword">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="editRole">Peran</label>
+                                    <select id="editRole" name="editRole" class="form-select" required>
+                                        <option value="">Pilih Peran</option>
+                                        <option value="siswa">Siswa</option>
+                                        <option value="guru">Guru</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" id="editClassGroup">
+                                    <label for="editClass">Kelas</label>
+                                    <select id="editClass" name="editClass" class="form-select">
+                                        <option value="">Pilih Kelas</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row mt-3">
+                                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                                <button type="button" id="deleteAccountBtn" class="btn btn-danger">Hapus Akun</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="footer">
+            <p>© 2025 Peduli Sehatku - Aplikasi Pemantau Kesehatan Anak SD</p>
+        </footer>
+    </div>
+    
+    <style>
+        /* Tab Styles */
+        .tabs {
+            display: flex;
+            margin-bottom: 2rem;
+        }
+        
+        .tab-btn {
+            padding: 0.8rem 1.5rem;
+            background-color: #f1f1f1;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            flex: 1;
+        }
+        
+        .tab-btn.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        .close-modal {
+            position: absolute;
+            right: 1.5rem;
+            top: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        /* Add some space between buttons */
+        .btn:not(:last-child) {
+            margin-right: 1rem;
+        }
+    </style>
+    
+    <script src="../database.js"></script>
+    <script src="../scripts.js"></script>
+    <script>
+        // Pastikan user sudah login
+        if (checkAuth()) {
+            const currentUser = getCurrentUser();
+            
+            // Handle Tab Switching
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabId = this.dataset.tab;
+                    
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Memuat pilihan kelas untuk filter dan form
+            loadClassOptions();
+            
+            // Function untuk memuat pilihan kelas
+            function loadClassOptions() {
+                const classes = loadClassOptions();
+                
+                // Pilihan kelas untuk filter
+                const classFilter = document.getElementById('classFilter');
+                classFilter.innerHTML = '<option value="all">Semua Kelas</option>';
+                
+                // Pilihan kelas untuk form tambah akun
+                const classSelect = document.getElementById('class');
+                classSelect.innerHTML = '<option value="">Pilih Kelas</option>';
+                
+                // Pilihan kelas untuk form edit akun
+                const editClassSelect = document.getElementById('editClass');
+                editClassSelect.innerHTML = '<option value="">Pilih Kelas</option>';
+                
+                // Tambahkan opsi kelas
+                classes.forEach(className => {
+                    // Untuk filter
+                    const filterOption = document.createElement('option');
+                    filterOption.value = className;
+                    filterOption.textContent = `Kelas ${className}`;
+                    classFilter.appendChild(filterOption);
+                    
+                    // Untuk form tambah akun
+                    const option = document.createElement('option');
+                    option.value = className;
+                    option.textContent = `Kelas ${className}`;
+                    classSelect.appendChild(option);
+                    
+                    // Untuk form edit akun
+                    const editOption = document.createElement('option');
+                    editOption.value = className;
+                    editOption.textContent = `Kelas ${className}`;
+                    editClassSelect.appendChild(editOption);
+                });
+            }
+            
+            // Load accounts
+            loadAccounts();
+            
+            // Event listener untuk tombol filter
+            document.getElementById('filterBtn').addEventListener('click', loadAccounts);
+            
+            // Function untuk memuat data akun
+            function loadAccounts() {
+                const tableBody = document.querySelector('#accountsTable tbody');
+                const roleFilter = document.getElementById('roleFilter').value;
+                const classFilter = document.getElementById('classFilter').value;
+                
+                // Ambil data pengguna
+                let users = getData('users');
+                
+                // Filter berdasarkan peran
+                if (roleFilter !== 'all') {
+                    users = users.filter(u => u.role === roleFilter);
+                }
+                
+                // Filter berdasarkan kelas
+                if (classFilter !== 'all') {
+                    users = users.filter(u => u.class === classFilter);
+                }
+                
+                if (users.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="6" class="text-center">Tidak ada akun yang sesuai dengan filter.</td></tr>';
+                    return;
+                }
+                
+                let tableHTML = '';
+                users.forEach(user => {
+                    tableHTML += `
+                        <tr>
+                            <td>${user.name}</td>
+                            <td>${user.username}</td>
+                            <td>${user.role === 'siswa' ? 'Siswa' : user.role === 'guru' ? 'Guru' : 'Admin'}</td>
+                            <td>${user.class || '-'}</td>
+                            <td>${formatDateDisplay(user.createdAt)}</td>
+                            <td>
+                                <button class="btn btn-primary edit-account" data-id="${user.id}">Edit</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                tableBody.innerHTML = tableHTML;
+                
+                // Tambahkan event listener untuk tombol edit
+                document.querySelectorAll('.edit-account').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const userId = this.dataset.id;
+                        showEditAccountModal(userId);
+                    });
+                });
+            }
+            
+            // Toggle display of class field based on role
+            document.getElementById('role').addEventListener('change', function() {
+                const classGroup = document.getElementById('classGroup');
+                const newClassGroup = document.getElementById('newClassGroup');
+                const createNewClassCheckbox = document.getElementById('createNewClass');
+                
+                if (this.value === 'admin') {
+                    classGroup.style.display = 'none';
+                    newClassGroup.style.display = 'none';
+                    createNewClassCheckbox.checked = false;
+                } else {
+                    classGroup.style.display = 'block';
+                    if (createNewClassCheckbox.checked) {
+                        newClassGroup.style.display = 'block';
+                    }
+                }
+            });
+            
+            // Toggle display of new class input
+            document.getElementById('createNewClass').addEventListener('change', function() {
+                const newClassGroup = document.getElementById('newClassGroup');
+                
+                if (this.checked) {
+                    newClassGroup.style.display = 'block';
+                } else {
+                    newClassGroup.style.display = 'none';
+                    document.getElementById('newClass').value = '';
+                }
+            });
+            
+            // Handle form submission for adding account
+            document.getElementById('addAccountForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const role = document.getElementById('role').value;
+                let className = null;
+                
+                if (role !== 'admin') {
+                    // Determine class value
+                    if (document.getElementById('createNewClass').checked) {
+                        className = document.getElementById('newClass').value.trim();
+                        if (!className) {
+                            alert('Silakan isi nama kelas baru.');
+                            return;
+                        }
+                    } else {
+                        className = document.getElementById('class').value;
+                        if (!className) {
+                            alert('Silakan pilih kelas.');
+                            return;
+                        }
+                    }
+                }
+                
+                const formData = {
+                    name: document.getElementById('name').value,
+                    username: document.getElementById('username').value,
+                    password: document.getElementById('password').value,
+                    role: role,
+                    class: className
+                };
+                
+                // Check if username already exists
+                const users = getData('users');
+                if (users.some(u => u.username === formData.username)) {
+                    alert('Username sudah digunakan. Silakan pilih username lain.');
+                    return;
+                }
+                
+                // Tambahkan akun baru
+                addUser(formData);
+                
+                // Tampilkan pesan sukses
+                const accountStatusMessage = document.getElementById('accountStatusMessage');
+                accountStatusMessage.innerHTML = `
+                    <div class="status-badge normal">Akun berhasil ditambahkan!</div>
+                `;
+                
+                // Reset form
+                this.reset();
+                document.getElementById('createNewClass').checked = false;
+                document.getElementById('newClassGroup').style.display = 'none';
+                
+                // Reload kelas options jika ada kelas baru
+                if (role !== 'admin' && document.getElementById('createNewClass').checked) {
+                    loadClassOptions();
+                }
+                
+                // Setelah beberapa detik, hapus pesan sukses
+                setTimeout(() => {
+                    accountStatusMessage.innerHTML = '';
+                }, 5000);
+            });
+            
+            // Show edit account modal
+            function showEditAccountModal(userId) {
+                const modal = document.getElementById('editAccountModal');
+                
+                // Ambil data user
+                const users = getData('users');
+                const user = users.find(u => u.id === userId);
+                
+                if (!user) {
+                    alert('User tidak ditemukan.');
+                    return;
+                }
+                
+                // Isi form dengan data user
+                document.getElementById('editUserId').value = user.id;
+                document.getElementById('editName').value = user.name;
+                document.getElementById('editUsername').value = user.username;
+                document.getElementById('editPassword').value = '';
+                document.getElementById('editRole').value = user.role;
+                
+                // Toggle display of class field based on role
+                const editClassGroup = document.getElementById('editClassGroup');
+                if (user.role === 'admin') {
+                    editClassGroup.style.display = 'none';
+                } else {
+                    editClassGroup.style.display = 'block';
+                    document.getElementById('editClass').value = user.class || '';
+                }
+                
+                modal.style.display = 'block';
+                
+                // Close modal when clicking X
+                document.querySelector('.close-modal').addEventListener('click', () => {
+                    modal.style.display = 'none';
+                });
+                
+                // Close modal when clicking outside
+                window.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            }
+            
+            // Toggle display of edit class field based on role
+            document.getElementById('editRole').addEventListener('change', function() {
+                const editClassGroup = document.getElementById('editClassGroup');
+                
+                if (this.value === 'admin') {
+                    editClassGroup.style.display = 'none';
+                } else {
+                    editClassGroup.style.display = 'block';
+                }
+            });
+            
+            // Handle form submission for editing account
+            document.getElementById('editAccountForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const userId = document.getElementById('editUserId').value;
+                const role = document.getElementById('editRole').value;
+                let className = null;
+                
+                if (role !== 'admin') {
+                    className = document.getElementById('editClass').value;
+                    if (!className) {
+                        alert('Silakan pilih kelas.');
+                        return;
+                    }
+                }
+                
+                const formData = {
+                    name: document.getElementById('editName').value,
+                    username: document.getElementById('editUsername').value,
+                    role: role,
+                    class: className
+                };
+                
+                // Add password only if it's not empty
+                const password = document.getElementById('editPassword').value;
+                if (password) {
+                    formData.password = password;
+                }
+                
+                // Check if username already exists (but not for the same user)
+                const users = getData('users');
+                if (users.some(u => u.username === formData.username && u.id !== userId)) {
+                    alert('Username sudah digunakan. Silakan pilih username lain.');
+                    return;
+                }
+                
+                // Update user
+                updateUser(userId, formData);
+                
+                // Close modal
+                document.getElementById('editAccountModal').style.display = 'none';
+                
+                // Reload accounts list
+                loadAccounts();
+            });
+            
+            // Handle delete account button
+            document.getElementById('deleteAccountBtn').addEventListener('click', function() {
+                const userId = document.getElementById('editUserId').value;
+                
+                // Confirm deletion
+                if (confirm('Apakah Anda yakin ingin menghapus akun ini? Semua data terkait akan dihapus.')) {
+                    // Delete user
+                    deleteUser(userId);
+                    
+                    // Close modal
+                    document.getElementById('editAccountModal').style.display = 'none';
+                    
+                    // Reload accounts list
+                    loadAccounts();
+                }
+            });
+            
+            // Event listener untuk tombol logout
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                logout();
+            });
+            
+            // Set active nav link
+            setActiveNavLink();
+        }
+    </script>
+</body>
+</html>

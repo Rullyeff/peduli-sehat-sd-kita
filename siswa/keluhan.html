@@ -1,0 +1,355 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keluhan Kesehatan - Peduli Sehatku</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <img src="https://via.placeholder.com/100" alt="Logo Peduli Sehatku" class="logo">
+            <h1>Peduli Sehatku</h1>
+            <p>Portal Siswa</p>
+        </header>
+        
+        <nav class="navbar">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-link">Beranda</a>
+                </li>
+                <li class="nav-item">
+                    <a href="isi-kesehatan.html" class="nav-link">Isi Data Kesehatan</a>
+                </li>
+                <li class="nav-item">
+                    <a href="keluhan.html" class="nav-link">Keluhan Kesehatan</a>
+                </li>
+                <li class="nav-item" style="margin-left: auto;">
+                    <a href="#" class="nav-link" id="logoutBtn">Keluar</a>
+                </li>
+            </ul>
+        </nav>
+        
+        <main>
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="new-complaint">Laporkan Keluhan Baru</button>
+                <button class="tab-btn" data-tab="complaint-history" id="historyTab">Riwayat Keluhan</button>
+            </div>
+            
+            <div class="tab-content active" id="new-complaint">
+                <h2 class="section-title">Laporkan Keluhan Kesehatan</h2>
+                
+                <div class="form-container">
+                    <div id="complaintStatusMessage" class="mb-3"></div>
+                    
+                    <form id="complaintForm">
+                        <div class="form-group">
+                            <label for="title">Judul Keluhan</label>
+                            <input type="text" id="title" name="title" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="description">Deskripsi Keluhan</label>
+                            <textarea id="description" name="description" class="form-textarea" required></textarea>
+                        </div>
+                        
+                        <div class="form-row mt-3">
+                            <button type="submit" class="btn btn-primary">Kirim Keluhan</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="complaint-history">
+                <h2 class="section-title">Riwayat Keluhan Kesehatan</h2>
+                
+                <div class="table-container">
+                    <table class="table" id="complaintHistoryTable">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Judul</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="4">Memuat data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Modal untuk detail keluhan -->
+                <div class="modal" id="complaintDetailModal">
+                    <div class="modal-content">
+                        <span class="close-modal">&times;</span>
+                        <h3>Detail Keluhan</h3>
+                        <div id="complaintDetailContent"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="footer">
+            <p>© 2025 Peduli Sehatku - Aplikasi Pemantau Kesehatan Anak SD</p>
+        </footer>
+    </div>
+    
+    <style>
+        /* Tab Styles */
+        .tabs {
+            display: flex;
+            margin-bottom: 2rem;
+        }
+        
+        .tab-btn {
+            padding: 0.8rem 1.5rem;
+            background-color: #f1f1f1;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            flex: 1;
+        }
+        
+        .tab-btn.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        .close-modal {
+            position: absolute;
+            right: 1.5rem;
+            top: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .response-item {
+            background-color: #f9f9f9;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+        
+        .response-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--light-text);
+            margin-bottom: 0.5rem;
+        }
+    </style>
+    
+    <script src="../database.js"></script>
+    <script src="../scripts.js"></script>
+    <script>
+        // Pastikan user sudah login
+        if (checkAuth()) {
+            const currentUser = getCurrentUser();
+            
+            // Handle Tab Switching
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabId = this.dataset.tab;
+                    
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    if (tabId === 'complaint-history') {
+                        loadComplaintHistory();
+                    }
+                });
+            });
+            
+            // Check if URL has #history hash
+            if (window.location.hash === '#history') {
+                document.getElementById('historyTab').click();
+            }
+            
+            // Handle form submission
+            const complaintForm = document.getElementById('complaintForm');
+            const complaintStatusMessage = document.getElementById('complaintStatusMessage');
+            
+            complaintForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    studentId: currentUser.id,
+                    date: getTodayDate(),
+                    title: document.getElementById('title').value,
+                    description: document.getElementById('description').value
+                };
+                
+                // Tambahkan keluhan baru
+                addComplaint(formData);
+                
+                // Tampilkan pesan sukses
+                complaintStatusMessage.innerHTML = `
+                    <div class="status-badge normal">Keluhan berhasil dikirim! Guru akan menanggapi keluhan kamu segera.</div>
+                `;
+                
+                // Reset form
+                complaintForm.reset();
+                
+                // Setelah beberapa detik, hapus pesan sukses
+                setTimeout(() => {
+                    complaintStatusMessage.innerHTML = '';
+                }, 5000);
+            });
+            
+            // Function untuk memuat riwayat keluhan
+            function loadComplaintHistory() {
+                const tableBody = document.querySelector('#complaintHistoryTable tbody');
+                const complaints = getComplaintsByStudent(currentUser.id);
+                
+                if (complaints.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="4" class="text-center">Kamu belum pernah melaporkan keluhan kesehatan.</td></tr>';
+                    return;
+                }
+                
+                let tableHTML = '';
+                complaints.forEach(complaint => {
+                    tableHTML += `
+                        <tr>
+                            <td>${formatDateDisplay(complaint.date)}</td>
+                            <td>${complaint.title}</td>
+                            <td>${formatStatus(complaint.status)}</td>
+                            <td>
+                                <button class="btn btn-primary view-detail" data-id="${complaint.id}">Detail</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                tableBody.innerHTML = tableHTML;
+                
+                // Tambahkan event listener untuk tombol detail
+                document.querySelectorAll('.view-detail').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const complaintId = this.dataset.id;
+                        showComplaintDetail(complaintId);
+                    });
+                });
+            }
+            
+            // Function untuk menampilkan detail keluhan
+            function showComplaintDetail(complaintId) {
+                const modal = document.getElementById('complaintDetailModal');
+                const modalContent = document.getElementById('complaintDetailContent');
+                
+                // Ambil data keluhan dan tanggapan
+                const complaints = getData('complaints');
+                const complaint = complaints.find(c => c.id === complaintId);
+                const responses = getResponsesForComplaint(complaintId);
+                
+                if (!complaint) {
+                    modalContent.innerHTML = '<p>Keluhan tidak ditemukan.</p>';
+                    return;
+                }
+                
+                // Build content HTML
+                let contentHTML = `
+                    <div class="mb-3">
+                        <h4 class="mb-1">${complaint.title}</h4>
+                        <div class="flex-between mb-2">
+                            <span>${formatDateDisplay(complaint.date)}</span>
+                            <span>${formatStatus(complaint.status)}</span>
+                        </div>
+                        <p>${complaint.description}</p>
+                    </div>
+                `;
+                
+                // Tambahkan tanggapan jika ada
+                if (responses.length > 0) {
+                    contentHTML += '<h4 class="mb-2">Tanggapan Guru:</h4>';
+                    
+                    responses.forEach(response => {
+                        contentHTML += `
+                            <div class="response-item">
+                                <div class="response-meta">
+                                    <span>Dari: ${getTeacherName(response.teacherId)}</span>
+                                    <span>${formatDateTime(response.createdAt)}</span>
+                                </div>
+                                <p>${response.text}</p>
+                            </div>
+                        `;
+                    });
+                } else {
+                    contentHTML += '<p>Belum ada tanggapan dari guru.</p>';
+                }
+                
+                modalContent.innerHTML = contentHTML;
+                modal.style.display = 'block';
+                
+                // Close modal when clicking X
+                document.querySelector('.close-modal').addEventListener('click', () => {
+                    modal.style.display = 'none';
+                });
+                
+                // Close modal when clicking outside
+                window.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            }
+            
+            // Event listener untuk tombol logout
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                logout();
+            });
+            
+            // Set active nav link
+            setActiveNavLink();
+        }
+    </script>
+</body>
+</html>

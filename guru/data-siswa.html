@@ -1,0 +1,337 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Kesehatan Siswa - Peduli Sehatku</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <img src="https://via.placeholder.com/100" alt="Logo Peduli Sehatku" class="logo">
+            <h1>Peduli Sehatku</h1>
+            <p>Portal Guru</p>
+        </header>
+        
+        <nav class="navbar">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-link">Beranda</a>
+                </li>
+                <li class="nav-item">
+                    <a href="data-siswa.html" class="nav-link">Data Kesehatan Siswa</a>
+                </li>
+                <li class="nav-item">
+                    <a href="keluhan-siswa.html" class="nav-link">Keluhan Siswa</a>
+                </li>
+                <li class="nav-item" style="margin-left: auto;">
+                    <a href="#" class="nav-link" id="logoutBtn">Keluar</a>
+                </li>
+            </ul>
+        </nav>
+        
+        <main>
+            <h2 class="section-title">Data Kesehatan Siswa Kelas <span id="className">...</span></h2>
+            
+            <div class="form-row mb-3">
+                <div class="form-group">
+                    <label for="dateFilter">Tanggal</label>
+                    <input type="date" id="dateFilter" class="form-select">
+                </div>
+                <div class="form-group">
+                    <label for="statusFilter">Filter Status</label>
+                    <select id="statusFilter" class="form-select">
+                        <option value="all">Semua Status</option>
+                        <option value="normal">Normal</option>
+                        <option value="warning">Perlu Perhatian</option>
+                        <option value="danger">Perlu Tindakan</option>
+                    </select>
+                </div>
+                <div class="form-group" style="align-self: flex-end;">
+                    <button id="filterBtn" class="btn btn-primary">Terapkan Filter</button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table class="table" id="healthDataTable">
+                    <thead>
+                        <tr>
+                            <th>Nama Siswa</th>
+                            <th>Suhu</th>
+                            <th>Tekanan Darah</th>
+                            <th>Berat/Tinggi</th>
+                            <th>BMI</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="7">Memuat data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Modal untuk detail kesehatan -->
+            <div class="modal" id="healthDetailModal">
+                <div class="modal-content">
+                    <span class="close-modal">&times;</span>
+                    <h3>Detail Kesehatan Siswa</h3>
+                    <div id="healthDetailContent"></div>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="footer">
+            <p>© 2025 Peduli Sehatku - Aplikasi Pemantau Kesehatan Anak SD</p>
+        </footer>
+    </div>
+    
+    <style>
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        .close-modal {
+            position: absolute;
+            right: 1.5rem;
+            top: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+    
+    <script src="../database.js"></script>
+    <script src="../scripts.js"></script>
+    <script>
+        // Pastikan user sudah login
+        if (checkAuth()) {
+            const currentUser = getCurrentUser();
+            
+            // Tampilkan nama kelas
+            document.getElementById('className').textContent = currentUser.class;
+            
+            // Set tanggal default ke hari ini
+            const dateFilter = document.getElementById('dateFilter');
+            dateFilter.value = getTodayDate();
+            dateFilter.max = getTodayDate();
+            
+            // Load health data
+            loadHealthData();
+            
+            // Event listener untuk tombol filter
+            document.getElementById('filterBtn').addEventListener('click', loadHealthData);
+            
+            // Function untuk memuat data kesehatan
+            function loadHealthData() {
+                const tableBody = document.querySelector('#healthDataTable tbody');
+                const selectedDate = document.getElementById('dateFilter').value;
+                const statusFilter = document.getElementById('statusFilter').value;
+                
+                // Ambil data siswa untuk kelas yang diajar
+                const students = getStudentsByClass(currentUser.class);
+                
+                // Ambil data kesehatan
+                const healthData = getData('healthData');
+                
+                if (students.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="7" class="text-center">Tidak ada siswa di kelas ini.</td></tr>';
+                    return;
+                }
+                
+                let tableHTML = '';
+                
+                // Untuk setiap siswa, cari data kesehatannya
+                students.forEach(student => {
+                    const studentHealth = healthData.find(d => 
+                        d.studentId === student.id && d.date === selectedDate
+                    );
+                    
+                    if (studentHealth) {
+                        // Evaluasi status kesehatan
+                        const tempStatus = evaluateTemperatureStatus(studentHealth.temperature);
+                        const bpStatus = evaluateBloodPressureStatus(
+                            studentHealth.bloodPressureSystolic, 
+                            studentHealth.bloodPressureDiastolic
+                        );
+                        
+                        const bmi = calculateBMI(studentHealth.weight, studentHealth.height);
+                        const bmiStatus = evaluateBMIStatus(bmi);
+                        
+                        // Tentukan status keseluruhan
+                        let overallStatus = 'normal';
+                        if (tempStatus === 'danger' || bpStatus === 'danger' || bmiStatus === 'danger') {
+                            overallStatus = 'danger';
+                        } else if (tempStatus === 'warning' || bpStatus === 'warning' || bmiStatus === 'warning') {
+                            overallStatus = 'warning';
+                        }
+                        
+                        // Filter berdasarkan status jika dipilih
+                        if (statusFilter !== 'all' && overallStatus !== statusFilter) {
+                            return;
+                        }
+                        
+                        tableHTML += `
+                            <tr>
+                                <td>${student.name}</td>
+                                <td>${formatHealthStatus(tempStatus, studentHealth.temperature + '°C')}</td>
+                                <td>${formatHealthStatus(bpStatus, studentHealth.bloodPressureSystolic + '/' + studentHealth.bloodPressureDiastolic)}</td>
+                                <td>${studentHealth.weight} kg / ${studentHealth.height} cm</td>
+                                <td>${formatHealthStatus(bmiStatus, bmi)}</td>
+                                <td>${formatHealthStatus(overallStatus, overallStatus === 'normal' ? 'Normal' : overallStatus === 'warning' ? 'Perlu Perhatian' : 'Perlu Tindakan')}</td>
+                                <td>
+                                    <button class="btn btn-primary view-health-detail" data-id="${studentHealth.id}">Detail</button>
+                                </td>
+                            </tr>
+                        `;
+                    } else {
+                        tableHTML += `
+                            <tr>
+                                <td>${student.name}</td>
+                                <td colspan="5" class="text-center">Belum mengisi data kesehatan</td>
+                                <td>-</td>
+                            </tr>
+                        `;
+                    }
+                });
+                
+                if (tableHTML === '') {
+                    tableHTML = '<tr><td colspan="7" class="text-center">Tidak ada data kesehatan yang sesuai dengan filter.</td></tr>';
+                }
+                
+                tableBody.innerHTML = tableHTML;
+                
+                // Tambahkan event listener untuk tombol detail
+                document.querySelectorAll('.view-health-detail').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const healthId = this.dataset.id;
+                        showHealthDetail(healthId);
+                    });
+                });
+            }
+            
+            // Function untuk menampilkan detail kesehatan
+            function showHealthDetail(healthId) {
+                const modal = document.getElementById('healthDetailModal');
+                const modalContent = document.getElementById('healthDetailContent');
+                
+                // Ambil data kesehatan
+                const healthData = getData('healthData');
+                const healthDetail = healthData.find(d => d.id === healthId);
+                
+                if (!healthDetail) {
+                    modalContent.innerHTML = '<p>Data tidak ditemukan.</p>';
+                    return;
+                }
+                
+                // Ambil data siswa
+                const users = getData('users');
+                const student = users.find(u => u.id === healthDetail.studentId);
+                
+                // Evaluasi status kesehatan
+                const tempStatus = evaluateTemperatureStatus(healthDetail.temperature);
+                const bpStatus = evaluateBloodPressureStatus(
+                    healthDetail.bloodPressureSystolic, 
+                    healthDetail.bloodPressureDiastolic
+                );
+                
+                const bmi = calculateBMI(healthDetail.weight, healthDetail.height);
+                const bmiStatus = evaluateBMIStatus(bmi);
+                
+                // Build content HTML
+                let contentHTML = `
+                    <div class="mb-3">
+                        <h4 class="mb-1">${student ? student.name : 'Tidak diketahui'}</h4>
+                        <p>Kelas: ${student ? student.class : 'Tidak diketahui'}</p>
+                        <p>Tanggal: ${formatDateDisplay(healthDetail.date)}</p>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="table">
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Nilai</th>
+                                <th>Status</th>
+                            </tr>
+                            <tr>
+                                <td>Suhu Tubuh</td>
+                                <td>${healthDetail.temperature}°C</td>
+                                <td>${formatHealthStatus(tempStatus, tempStatus === 'normal' ? 'Normal' : 'Perlu Perhatian')}</td>
+                            </tr>
+                            <tr>
+                                <td>Tekanan Darah</td>
+                                <td>${healthDetail.bloodPressureSystolic}/${healthDetail.bloodPressureDiastolic} mmHg</td>
+                                <td>${formatHealthStatus(bpStatus, bpStatus === 'normal' ? 'Normal' : 'Perlu Perhatian')}</td>
+                            </tr>
+                            <tr>
+                                <td>Berat Badan</td>
+                                <td>${healthDetail.weight} kg</td>
+                                <td rowspan="2">${formatHealthStatus(bmiStatus, 'BMI: ' + bmi)}</td>
+                            </tr>
+                            <tr>
+                                <td>Tinggi Badan</td>
+                                <td>${healthDetail.height} cm</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <h4>Catatan:</h4>
+                        <p>${healthDetail.notes || 'Tidak ada catatan'}</p>
+                    </div>
+                `;
+                
+                modalContent.innerHTML = contentHTML;
+                modal.style.display = 'block';
+                
+                // Close modal when clicking X
+                document.querySelector('.close-modal').addEventListener('click', () => {
+                    modal.style.display = 'none';
+                });
+                
+                // Close modal when clicking outside
+                window.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            }
+            
+            // Event listener untuk tombol logout
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                logout();
+            });
+            
+            // Set active nav link
+            setActiveNavLink();
+        }
+    </script>
+</body>
+</html>

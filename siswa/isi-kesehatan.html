@@ -1,0 +1,220 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Isi Data Kesehatan - Peduli Sehatku</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <img src="https://via.placeholder.com/100" alt="Logo Peduli Sehatku" class="logo">
+            <h1>Peduli Sehatku</h1>
+            <p>Portal Siswa</p>
+        </header>
+        
+        <nav class="navbar">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-link">Beranda</a>
+                </li>
+                <li class="nav-item">
+                    <a href="isi-kesehatan.html" class="nav-link">Isi Data Kesehatan</a>
+                </li>
+                <li class="nav-item">
+                    <a href="keluhan.html" class="nav-link">Keluhan Kesehatan</a>
+                </li>
+                <li class="nav-item" style="margin-left: auto;">
+                    <a href="#" class="nav-link" id="logoutBtn">Keluar</a>
+                </li>
+            </ul>
+        </nav>
+        
+        <main>
+            <h2 class="section-title">Isi Data Kesehatan Harian</h2>
+            
+            <div class="form-container">
+                <div id="healthStatusMessage" class="mb-3"></div>
+                
+                <form id="healthDataForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="date">Tanggal</label>
+                            <input type="date" id="date" name="date" class="form-select" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="temperature">Suhu Tubuh (°C)</label>
+                            <input type="number" id="temperature" name="temperature" step="0.1" min="35" max="42" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="weight">Berat Badan (kg)</label>
+                            <input type="number" id="weight" name="weight" step="0.1" min="20" max="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="height">Tinggi Badan (cm)</label>
+                            <input type="number" id="height" name="height" step="0.1" min="100" max="200" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bloodPressureSystolic">Tekanan Darah (Sistolik)</label>
+                            <input type="number" id="bloodPressureSystolic" name="bloodPressureSystolic" min="80" max="180" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bloodPressureDiastolic">Tekanan Darah (Diastolik)</label>
+                            <input type="number" id="bloodPressureDiastolic" name="bloodPressureDiastolic" min="50" max="120" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notes">Catatan Tambahan</label>
+                        <textarea id="notes" name="notes" class="form-textarea"></textarea>
+                    </div>
+                    
+                    <div class="form-row mt-3">
+                        <button type="submit" class="btn btn-primary">Simpan Data Kesehatan</button>
+                    </div>
+                </form>
+                
+                <div id="healthSummary" class="mt-4" style="display: none;">
+                    <h3 class="mb-2">Ringkasan Kesehatan</h3>
+                    <div id="healthSummaryContent"></div>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="footer">
+            <p>© 2025 Peduli Sehatku - Aplikasi Pemantau Kesehatan Anak SD</p>
+        </footer>
+    </div>
+    
+    <script src="../database.js"></script>
+    <script src="../scripts.js"></script>
+    <script>
+        // Pastikan user sudah login
+        if (checkAuth()) {
+            const currentUser = getCurrentUser();
+            const healthDataForm = document.getElementById('healthDataForm');
+            const healthStatusMessage = document.getElementById('healthStatusMessage');
+            
+            // Set tanggal default ke hari ini
+            document.getElementById('date').value = getTodayDate();
+            document.getElementById('date').max = getTodayDate();
+            
+            // Cek apakah siswa sudah mengisi data kesehatan hari ini
+            if (hasHealthDataToday(currentUser.id)) {
+                const healthData = getHealthDataByStudentAndDate(currentUser.id, getTodayDate());
+                
+                // Tampilkan pesan dan isi form dengan data yang ada
+                healthStatusMessage.innerHTML = `
+                    <div class="status-badge normal">Kamu sudah mengisi data kesehatan hari ini. Data yang kamu masukkan terakhir ditampilkan dibawah.</div>
+                `;
+                
+                document.getElementById('temperature').value = healthData.temperature;
+                document.getElementById('weight').value = healthData.weight;
+                document.getElementById('height').value = healthData.height;
+                document.getElementById('bloodPressureSystolic').value = healthData.bloodPressureSystolic;
+                document.getElementById('bloodPressureDiastolic').value = healthData.bloodPressureDiastolic;
+                document.getElementById('notes').value = healthData.notes;
+                
+                // Tampilkan ringkasan kesehatan
+                showHealthSummary(healthData);
+            }
+            
+            // Handle form submission
+            healthDataForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    studentId: currentUser.id,
+                    date: document.getElementById('date').value,
+                    temperature: parseFloat(document.getElementById('temperature').value),
+                    weight: parseFloat(document.getElementById('weight').value),
+                    height: parseFloat(document.getElementById('height').value),
+                    bloodPressureSystolic: parseInt(document.getElementById('bloodPressureSystolic').value),
+                    bloodPressureDiastolic: parseInt(document.getElementById('bloodPressureDiastolic').value),
+                    notes: document.getElementById('notes').value
+                };
+                
+                // Tambahkan data kesehatan baru
+                const newHealthData = addHealthData(formData);
+                
+                // Tampilkan pesan sukses
+                healthStatusMessage.innerHTML = `
+                    <div class="status-badge normal">Data kesehatan berhasil disimpan!</div>
+                `;
+                
+                // Tampilkan ringkasan kesehatan
+                showHealthSummary(newHealthData);
+            });
+            
+            // Function untuk menampilkan ringkasan kesehatan
+            function showHealthSummary(healthData) {
+                const healthSummary = document.getElementById('healthSummary');
+                const healthSummaryContent = document.getElementById('healthSummaryContent');
+                
+                // Format status suhu dan tekanan darah
+                const tempStatus = evaluateTemperatureStatus(healthData.temperature);
+                const bpStatus = evaluateBloodPressureStatus(
+                    healthData.bloodPressureSystolic, 
+                    healthData.bloodPressureDiastolic
+                );
+                
+                // Calculate BMI
+                const bmi = calculateBMI(healthData.weight, healthData.height);
+                const bmiStatus = evaluateBMIStatus(bmi);
+                
+                let statusHTML = `
+                    <div class="table-container">
+                        <table class="table">
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Nilai</th>
+                                <th>Status</th>
+                            </tr>
+                            <tr>
+                                <td>Suhu Tubuh</td>
+                                <td>${healthData.temperature}°C</td>
+                                <td>${formatHealthStatus(tempStatus, tempStatus === 'normal' ? 'Normal' : 'Perhatikan')}</td>
+                            </tr>
+                            <tr>
+                                <td>Tekanan Darah</td>
+                                <td>${healthData.bloodPressureSystolic}/${healthData.bloodPressureDiastolic} mmHg</td>
+                                <td>${formatHealthStatus(bpStatus, bpStatus === 'normal' ? 'Normal' : 'Perhatikan')}</td>
+                            </tr>
+                            <tr>
+                                <td>BMI (Indeks Massa Tubuh)</td>
+                                <td>${bmi}</td>
+                                <td>${formatHealthStatus(bmiStatus, bmiStatus === 'normal' ? 'Normal' : 'Perhatikan')}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="mt-2">
+                        <p><strong>Catatan:</strong> ${healthData.notes || 'Tidak ada catatan'}</p>
+                    </div>
+                `;
+                
+                healthSummaryContent.innerHTML = statusHTML;
+                healthSummary.style.display = 'block';
+            }
+            
+            // Event listener untuk tombol logout
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                logout();
+            });
+            
+            // Set active nav link
+            setActiveNavLink();
+        }
+    </script>
+</body>
+</html>

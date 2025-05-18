@@ -1,0 +1,179 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Peduli Sehatku</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <img src="https://via.placeholder.com/100" alt="Logo Peduli Sehatku" class="logo">
+            <h1>Peduli Sehatku</h1>
+            <p>Portal Administrator</p>
+        </header>
+        
+        <nav class="navbar">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-link">Beranda</a>
+                </li>
+                <li class="nav-item">
+                    <a href="kelola-akun.html" class="nav-link">Kelola Akun</a>
+                </li>
+                <li class="nav-item">
+                    <a href="data-kesehatan.html" class="nav-link">Data Kesehatan</a>
+                </li>
+                <li class="nav-item" style="margin-left: auto;">
+                    <a href="#" class="nav-link" id="logoutBtn">Keluar</a>
+                </li>
+            </ul>
+        </nav>
+        
+        <main class="dashboard">
+            <div class="dashboard-header">
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/50" alt="Foto Profil" class="user-avatar">
+                    <div class="user-details">
+                        <h3 id="adminName">Memuat...</h3>
+                        <p>Administrator</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dashboard-content">
+                <div class="dashboard-card">
+                    <div class="card-icon">
+                        <i class="fas fa-user-friends"></i>
+                    </div>
+                    <h3 class="card-title">Manajemen Akun</h3>
+                    <div class="card-content" id="accountStats">
+                        <p>Memuat data...</p>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <a href="kelola-akun.html" class="btn btn-primary">Kelola Akun</a>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <h3 class="card-title">Data Kesehatan</h3>
+                    <div class="card-content" id="healthStats">
+                        <p>Memuat data...</p>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <a href="data-kesehatan.html" class="btn btn-primary">Lihat Data</a>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-icon">
+                        <i class="fas fa-comment-medical"></i>
+                    </div>
+                    <h3 class="card-title">Keluhan Kesehatan</h3>
+                    <div class="card-content" id="complaintStats">
+                        <p>Memuat data...</p>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <a href="data-kesehatan.html#complaints" class="btn btn-primary">Lihat Keluhan</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="footer">
+            <p>© 2025 Peduli Sehatku - Aplikasi Pemantau Kesehatan Anak SD</p>
+        </footer>
+    </div>
+    
+    <script src="../database.js"></script>
+    <script src="../scripts.js"></script>
+    <script>
+        // Pastikan user sudah login
+        if (checkAuth()) {
+            const currentUser = getCurrentUser();
+            
+            // Tampilkan info admin
+            document.getElementById('adminName').textContent = currentUser.name;
+            
+            // Ambil data pengguna
+            const users = getData('users');
+            const students = users.filter(u => u.role === 'siswa');
+            const teachers = users.filter(u => u.role === 'guru');
+            const admins = users.filter(u => u.role === 'admin');
+            
+            // Tampilkan statistik akun
+            const accountStats = document.getElementById('accountStats');
+            accountStats.innerHTML = `
+                <p>Total Siswa: <strong>${students.length}</strong></p>
+                <p>Total Guru: <strong>${teachers.length}</strong></p>
+                <p>Total Admin: <strong>${admins.length}</strong></p>
+            `;
+            
+            // Ambil data kesehatan
+            const healthData = getData('healthData');
+            const todayDate = getTodayDate();
+            const todayHealthData = healthData.filter(d => d.date === todayDate);
+            
+            // Hitung status kesehatan
+            let normalCount = 0;
+            let warningCount = 0;
+            let dangerCount = 0;
+            
+            todayHealthData.forEach(data => {
+                const tempStatus = evaluateTemperatureStatus(data.temperature);
+                const bpStatus = evaluateBloodPressureStatus(
+                    data.bloodPressureSystolic, 
+                    data.bloodPressureDiastolic
+                );
+                
+                if (tempStatus === 'danger' || bpStatus === 'danger') {
+                    dangerCount++;
+                } else if (tempStatus === 'warning' || bpStatus === 'warning') {
+                    warningCount++;
+                } else {
+                    normalCount++;
+                }
+            });
+            
+            // Tampilkan statistik kesehatan
+            const healthStats = document.getElementById('healthStats');
+            healthStats.innerHTML = `
+                <p>Data Hari Ini: <strong>${todayHealthData.length}</strong> siswa</p>
+                <p>Status Kesehatan:</p>
+                <p>- Normal: <strong>${normalCount}</strong> siswa</p>
+                <p>- Perlu Perhatian: <strong>${warningCount}</strong> siswa</p>
+                <p>- Perlu Tindakan: <strong>${dangerCount}</strong> siswa</p>
+            `;
+            
+            // Ambil data keluhan
+            const complaints = getData('complaints');
+            const unreadComplaints = complaints.filter(c => c.status === 'unread').length;
+            const respondedComplaints = complaints.filter(c => c.status === 'responded').length;
+            
+            // Tampilkan statistik keluhan
+            const complaintStats = document.getElementById('complaintStats');
+            complaintStats.innerHTML = `
+                <p>Total Keluhan: <strong>${complaints.length}</strong></p>
+                <p>Belum Ditanggapi: <strong>${unreadComplaints}</strong></p>
+                <p>Sudah Ditanggapi: <strong>${respondedComplaints}</strong></p>
+            `;
+            
+            // Event listener untuk tombol logout
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                logout();
+            });
+            
+            // Set active nav link
+            setActiveNavLink();
+        }
+    </script>
+</body>
+</html>

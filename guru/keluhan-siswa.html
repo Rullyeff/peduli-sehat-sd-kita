@@ -1,0 +1,333 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keluhan Siswa - Peduli Sehatku</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <img src="https://via.placeholder.com/100" alt="Logo Peduli Sehatku" class="logo">
+            <h1>Peduli Sehatku</h1>
+            <p>Portal Guru</p>
+        </header>
+        
+        <nav class="navbar">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-link">Beranda</a>
+                </li>
+                <li class="nav-item">
+                    <a href="data-siswa.html" class="nav-link">Data Kesehatan Siswa</a>
+                </li>
+                <li class="nav-item">
+                    <a href="keluhan-siswa.html" class="nav-link">Keluhan Siswa</a>
+                </li>
+                <li class="nav-item" style="margin-left: auto;">
+                    <a href="#" class="nav-link" id="logoutBtn">Keluar</a>
+                </li>
+            </ul>
+        </nav>
+        
+        <main>
+            <h2 class="section-title">Keluhan Kesehatan Siswa Kelas <span id="className">...</span></h2>
+            
+            <div class="form-row mb-3">
+                <div class="form-group">
+                    <label for="statusFilter">Filter Status</label>
+                    <select id="statusFilter" class="form-select">
+                        <option value="all">Semua Status</option>
+                        <option value="unread" selected>Belum Dibaca</option>
+                        <option value="read">Sudah Dibaca</option>
+                        <option value="responded">Sudah Ditanggapi</option>
+                    </select>
+                </div>
+                <div class="form-group" style="align-self: flex-end;">
+                    <button id="filterBtn" class="btn btn-primary">Terapkan Filter</button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table class="table" id="complaintsTable">
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Nama Siswa</th>
+                            <th>Keluhan</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="5">Memuat data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Modal untuk detail keluhan dan tanggapan -->
+            <div class="modal" id="complaintDetailModal">
+                <div class="modal-content">
+                    <span class="close-modal">&times;</span>
+                    <h3>Detail Keluhan & Tanggapan</h3>
+                    <div id="complaintDetailContent"></div>
+                    
+                    <form id="responseForm" class="mt-3">
+                        <input type="hidden" id="complaintId">
+                        <div class="form-group">
+                            <label for="responseText">Tanggapan Anda</label>
+                            <textarea id="responseText" class="form-textarea" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Kirim Tanggapan</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="footer">
+            <p>© 2025 Peduli Sehatku - Aplikasi Pemantau Kesehatan Anak SD</p>
+        </footer>
+    </div>
+    
+    <style>
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+            animation: fadeIn 0.3s ease-in-out;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .close-modal {
+            position: absolute;
+            right: 1.5rem;
+            top: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .response-item {
+            background-color: #f9f9f9;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+        
+        .response-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--light-text);
+            margin-bottom: 0.5rem;
+        }
+        
+        .complaint-content {
+            background-color: #edf7ff;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+    </style>
+    
+    <script src="../database.js"></script>
+    <script src="../scripts.js"></script>
+    <script>
+        // Pastikan user sudah login
+        if (checkAuth()) {
+            const currentUser = getCurrentUser();
+            
+            // Tampilkan nama kelas
+            document.getElementById('className').textContent = currentUser.class;
+            
+            // Load complaints
+            loadComplaints();
+            
+            // Event listener untuk tombol filter
+            document.getElementById('filterBtn').addEventListener('click', loadComplaints);
+            
+            // Function untuk memuat data keluhan
+            function loadComplaints() {
+                const tableBody = document.querySelector('#complaintsTable tbody');
+                const statusFilter = document.getElementById('statusFilter').value;
+                
+                // Ambil keluhan untuk kelas yang diajar
+                let complaints = getComplaintsByClass(currentUser.class);
+                
+                // Filter berdasarkan status
+                if (statusFilter !== 'all') {
+                    complaints = complaints.filter(c => c.status === statusFilter);
+                }
+                
+                if (complaints.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Tidak ada keluhan yang sesuai dengan filter.</td></tr>';
+                    return;
+                }
+                
+                let tableHTML = '';
+                complaints.forEach(complaint => {
+                    const student = getStudentName(complaint.studentId);
+                    
+                    tableHTML += `
+                        <tr>
+                            <td>${formatDateDisplay(complaint.date)}</td>
+                            <td>${student}</td>
+                            <td>${complaint.title}</td>
+                            <td>${formatStatus(complaint.status)}</td>
+                            <td>
+                                <button class="btn btn-primary view-complaint" data-id="${complaint.id}">Tanggapi</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                tableBody.innerHTML = tableHTML;
+                
+                // Tambahkan event listener untuk tombol detail
+                document.querySelectorAll('.view-complaint').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const complaintId = this.dataset.id;
+                        showComplaintDetail(complaintId);
+                    });
+                });
+            }
+            
+            // Function untuk menampilkan detail keluhan
+            function showComplaintDetail(complaintId) {
+                const modal = document.getElementById('complaintDetailModal');
+                const modalContent = document.getElementById('complaintDetailContent');
+                
+                // Ambil data keluhan dan tanggapan
+                const complaints = getData('complaints');
+                const complaint = complaints.find(c => c.id === complaintId);
+                const responses = getResponsesForComplaint(complaintId);
+                
+                if (!complaint) {
+                    modalContent.innerHTML = '<p>Keluhan tidak ditemukan.</p>';
+                    return;
+                }
+                
+                // Ambil data siswa
+                const student = getStudentName(complaint.studentId);
+                
+                // Build content HTML
+                let contentHTML = `
+                    <div class="complaint-content">
+                        <h4 class="mb-1">${complaint.title}</h4>
+                        <div class="flex-between mb-2">
+                            <span>Dari: ${student}</span>
+                            <span>${formatDateDisplay(complaint.date)}</span>
+                        </div>
+                        <p>${complaint.description}</p>
+                    </div>
+                `;
+                
+                // Tambahkan tanggapan jika ada
+                if (responses.length > 0) {
+                    contentHTML += '<h4 class="mb-2">Tanggapan Sebelumnya:</h4>';
+                    
+                    responses.forEach(response => {
+                        contentHTML += `
+                            <div class="response-item">
+                                <div class="response-meta">
+                                    <span>Dari: ${getTeacherName(response.teacherId)}</span>
+                                    <span>${formatDateTime(response.createdAt)}</span>
+                                </div>
+                                <p>${response.text}</p>
+                            </div>
+                        `;
+                    });
+                }
+                
+                modalContent.innerHTML = contentHTML;
+                document.getElementById('complaintId').value = complaintId;
+                document.getElementById('responseText').value = '';
+                modal.style.display = 'block';
+                
+                // Update status keluhan menjadi 'read' jika statusnya 'unread'
+                if (complaint.status === 'unread') {
+                    const complaints = getData('complaints');
+                    const complaintIndex = complaints.findIndex(c => c.id === complaintId);
+                    if (complaintIndex !== -1) {
+                        complaints[complaintIndex].status = 'read';
+                        saveData('complaints', complaints);
+                    }
+                }
+                
+                // Close modal when clicking X
+                document.querySelector('.close-modal').addEventListener('click', () => {
+                    modal.style.display = 'none';
+                    loadComplaints(); // Reload the complaints after closing the modal
+                });
+                
+                // Close modal when clicking outside
+                window.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                        loadComplaints();
+                    }
+                });
+            }
+            
+            // Handle response form submission
+            document.getElementById('responseForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const complaintId = document.getElementById('complaintId').value;
+                const responseText = document.getElementById('responseText').value;
+                
+                if (!responseText.trim()) {
+                    alert('Silakan tulis tanggapan Anda.');
+                    return;
+                }
+                
+                // Tambahkan tanggapan baru
+                addResponse({
+                    complaintId: complaintId,
+                    teacherId: currentUser.id,
+                    text: responseText
+                });
+                
+                // Tutup modal
+                document.getElementById('complaintDetailModal').style.display = 'none';
+                
+                // Reload complaints list
+                loadComplaints();
+            });
+            
+            // Event listener untuk tombol logout
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                logout();
+            });
+            
+            // Set active nav link
+            setActiveNavLink();
+        }
+    </script>
+</body>
+</html>
