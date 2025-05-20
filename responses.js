@@ -2,7 +2,7 @@
 // Module untuk manajemen tanggapan guru terhadap keluhan siswa
 
 // Import dependencies
-document.write('<script src="../storage.js"></script>');
+document.write('<script src="./storage.js"></script>');
 
 // Function untuk mendapatkan tanggapan untuk keluhan tertentu
 function getResponsesForComplaint(complaintId) {
@@ -36,3 +36,9 @@ function addResponse(response) {
     
     return newResponse;
 }
+
+// Export functions
+module.exports = {
+    getResponsesForComplaint,
+    addResponse
+};

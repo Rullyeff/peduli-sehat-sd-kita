@@ -2,8 +2,8 @@
 // Module untuk manajemen data kesehatan siswa
 
 // Import dependencies
-document.write('<script src="../storage.js"></script>');
-document.write('<script src="../utils.js"></script>');
+document.write('<script src="./storage.js"></script>');
+document.write('<script src="./utils.js"></script>');
 
 // Function untuk menambahkan data kesehatan baru
 function addHealthData(healthData) {
@@ -38,3 +38,38 @@ function getHealthDataByStudentAndDate(studentId, date) {
         data.studentId === studentId && data.date === date
     );
 }
+
+// Function untuk mendapatkan semua data kesehatan siswa berdasarkan ID
+function getAllHealthDataByStudent(studentId) {
+    const healthData = getData('healthData');
+    
+    return healthData.filter(data => 
+        data.studentId === studentId
+    ).sort((a, b) => new Date(b.date) - new Date(a.date));
+}
+
+// Function untuk mendapatkan data kesehatan berdasarkan kelas
+function getHealthDataByClass(className, date) {
+    const healthData = getData('healthData');
+    const users = getData('users');
+    
+    // ID siswa dari kelas tertentu
+    const studentIds = users
+        .filter(user => user.role === 'siswa' && user.class === className)
+        .map(student => student.id);
+    
+    return healthData
+        .filter(data => 
+            studentIds.includes(data.studentId) && 
+            (!date || data.date === date)
+        );
+}
+
+// Export functions
+module.exports = {
+    addHealthData,
+    hasHealthDataToday,
+    getHealthDataByStudentAndDate,
+    getAllHealthDataByStudent,
+    getHealthDataByClass
+};

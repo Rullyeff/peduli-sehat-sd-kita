@@ -17,3 +17,8 @@ function saveData(key, data) {
 }
 
 // Export functions
+module.exports = {
+    generateId,
+    getData,
+    saveData
+};

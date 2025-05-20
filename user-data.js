@@ -2,7 +2,7 @@
 // Module untuk mendapatkan data pengguna (siswa dan guru)
 
 // Import dependencies
-document.write('<script src="../storage.js"></script>');
+document.write('<script src="./storage.js"></script>');
 
 // Function untuk mendapatkan nama siswa berdasarkan ID
 function getStudentName(studentId) {
@@ -28,3 +28,10 @@ function getStudentsByClass(className) {
         user.role === 'siswa' && user.class === className
     );
 }
+
+// Export functions
+module.exports = {
+    getStudentName,
+    getTeacherName,
+    getStudentsByClass
+};

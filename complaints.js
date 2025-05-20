@@ -2,8 +2,8 @@
 // Module untuk manajemen keluhan kesehatan siswa
 
 // Import dependencies
-document.write('<script src="../storage.js"></script>');
-document.write('<script src="../utils.js"></script>');
+document.write('<script src="./storage.js"></script>');
+document.write('<script src="./utils.js"></script>');
 
 // Function untuk menambahkan keluhan baru
 function addComplaint(complaint) {
@@ -44,3 +44,10 @@ function getComplaintsByClass(className) {
         .filter(complaint => studentIds.includes(complaint.studentId))
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 }
+
+// Export functions
+module.exports = {
+    addComplaint,
+    getComplaintsByStudent,
+    getComplaintsByClass
+};
