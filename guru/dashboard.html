@@ -8,13 +8,12 @@
     <link rel="stylesheet" href="../style.css">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
 </head>
 <body>
     <div class="container">
         <header class="header">
-            <img src="../images/logo-health.png" alt="Logo Peduli Sehatku" class="logo" id="schoolLogo">
-            <h1 id="schoolName">Peduli Sehatku</h1>
+            <img src="https://via.placeholder.com/100" alt="Logo Peduli Sehatku" class="logo">
+            <h1>Peduli Sehatku</h1>
             <p>Portal Guru</p>
         </header>
         
@@ -29,9 +28,6 @@
                 <li class="nav-item">
                     <a href="keluhan-siswa.html" class="nav-link">Keluhan Siswa</a>
                 </li>
-                <li class="nav-item">
-                    <a href="tips-kesehatan.html" class="nav-link">Tips Kesehatan</a>
-                </li>
                 <li class="nav-item" style="margin-left: auto;">
                     <a href="#" class="nav-link" id="logoutBtn">Keluar</a>
                 </li>
@@ -41,7 +37,7 @@
         <main class="dashboard">
             <div class="dashboard-header">
                 <div class="user-info">
-                    <img src="../images/teacher-avatar.png" alt="Foto Profil" class="user-avatar">
+                    <img src="https://via.placeholder.com/50" alt="Foto Profil" class="user-avatar">
                     <div class="user-details">
                         <h3 id="teacherName">Memuat...</h3>
                         <p id="teacherClass">Memuat...</p>
@@ -52,24 +48,24 @@
             <div class="dashboard-content">
                 <div class="dashboard-card">
                     <div class="card-icon">
-                        <i class="fas fa-child"></i>
+                        <i class="fas fa-user-friends"></i>
                     </div>
-                    <h3 class="card-title">Data Kesehatan Siswa</h3>
-                    <div class="card-content">
-                        <p>Pantau data kesehatan siswa di kelas Anda.</p>
+                    <h3 class="card-title">Data Siswa</h3>
+                    <div class="card-content" id="studentStats">
+                        <p>Memuat data...</p>
                     </div>
                     <div class="mt-3 text-center">
                         <a href="data-siswa.html" class="btn btn-primary">Lihat Data Siswa</a>
                     </div>
                 </div>
                 
-                <div class="dashboard-card" id="complaintsCard">
+                <div class="dashboard-card">
                     <div class="card-icon">
                         <i class="fas fa-comment-medical"></i>
                     </div>
                     <h3 class="card-title">Keluhan Siswa</h3>
-                    <div class="card-content">
-                        <p id="complaintsCount">Memuat data keluhan...</p>
+                    <div class="card-content" id="complaintStats">
+                        <p>Memuat data...</p>
                     </div>
                     <div class="mt-3 text-center">
                         <a href="keluhan-siswa.html" class="btn btn-primary">Tanggapi Keluhan</a>
@@ -78,37 +74,14 @@
                 
                 <div class="dashboard-card">
                     <div class="card-icon">
-                        <i class="fas fa-clipboard-list"></i>
+                        <i class="fas fa-heartbeat"></i>
                     </div>
-                    <h3 class="card-title">Ringkasan Harian</h3>
-                    <div class="card-content">
-                        <p id="healthDataCount">Memuat data kesehatan...</p>
+                    <h3 class="card-title">Kesehatan Hari Ini</h3>
+                    <div class="card-content" id="healthStats">
+                        <p>Memuat data...</p>
                     </div>
                     <div class="mt-3 text-center">
-                        <a href="data-siswa.html" class="btn btn-primary">Lihat Ringkasan</a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="health-tips-section mt-4">
-                <h2 class="section-title">Tips Kesehatan Hari Ini</h2>
-                <div class="tips-card">
-                    <div class="tips-card-header">
-                        <img src="../images/fruit-vegetables.png" alt="Tip Kesehatan" class="tips-image">
-                        <h3>Makan Buah dan Sayur</h3>
-                    </div>
-                    <div class="tips-card-body">
-                        <p>Dorong siswa untuk mengonsumsi minimal 3 porsi buah dan sayur setiap hari. Pilih buah dan sayur beraneka warna untuk mendapatkan berbagai nutrisi penting.</p>
-                    </div>
-                </div>
-                
-                <div class="tips-card">
-                    <div class="tips-card-header">
-                        <img src="../images/handwashing.png" alt="Tip Kesehatan" class="tips-image">
-                        <h3>Cuci Tangan Dengan Benar</h3>
-                    </div>
-                    <div class="tips-card-body">
-                        <p>Ingatkan siswa untuk selalu mencuci tangan dengan sabun selama minimal 20 detik sebelum makan, setelah menggunakan toilet, dan setelah bermain di luar.</p>
+                        <a href="data-siswa.html" class="btn btn-primary">Detail Kesehatan</a>
                     </div>
                 </div>
             </div>
@@ -121,43 +94,72 @@
     
     <script src="../database.js"></script>
     <script src="../scripts.js"></script>
-    <script src="../school-settings.js"></script>
     <script>
         // Pastikan user sudah login
         if (checkAuth()) {
-            // Inisialisasi pengaturan sekolah jika belum ada
-            initializeSchoolSettings();
-            
-            // Tampilkan pengaturan sekolah
-            const settings = getSchoolSettings();
-            document.getElementById('schoolName').textContent = settings.name;
-            document.getElementById('schoolLogo').src = settings.logoUrl;
-            
             const currentUser = getCurrentUser();
             
             // Tampilkan info guru
             document.getElementById('teacherName').textContent = currentUser.name;
-            document.getElementById('teacherClass').textContent = `Kelas ${currentUser.class}`;
+            document.getElementById('teacherClass').textContent = `Wali Kelas ${currentUser.class}`;
             
-            // Jumlah keluhan belum dibaca
-            const complaints = getComplaintsByClass(currentUser.class);
-            const unreadComplaints = complaints.filter(c => c.status === 'unread');
-            document.getElementById('complaintsCount').textContent = 
-                `Ada ${unreadComplaints.length} keluhan belum ditanggapi.`;
-            
-            // Jumlah data kesehatan hari ini
+            // Ambil data siswa untuk kelas yang diajar
             const students = getStudentsByClass(currentUser.class);
-            const todayDate = getTodayDate();
             
-            let healthDataCount = 0;
-            students.forEach(student => {
-                if (hasHealthDataToday(student.id)) {
-                    healthDataCount++;
+            // Tampilkan jumlah siswa
+            const studentStats = document.getElementById('studentStats');
+            studentStats.innerHTML = `<p>Jumlah Siswa Kelas ${currentUser.class}: <strong>${students.length}</strong> siswa</p>`;
+            
+            // Hitung data keluhan
+            const complaints = getComplaintsByClass(currentUser.class);
+            const unreadComplaints = complaints.filter(c => c.status === 'unread').length;
+            
+            // Tampilkan jumlah keluhan
+            const complaintStats = document.getElementById('complaintStats');
+            complaintStats.innerHTML = `
+                <p>Total Keluhan: <strong>${complaints.length}</strong> keluhan</p>
+                <p>Belum Ditanggapi: <strong>${unreadComplaints}</strong> keluhan</p>
+            `;
+            
+            // Hitung data kesehatan hari ini
+            const todayDate = getTodayDate();
+            const healthData = getData('healthData');
+            const studentIds = students.map(s => s.id);
+            
+            const todayHealthData = healthData.filter(d => 
+                studentIds.includes(d.studentId) && d.date === todayDate
+            );
+            
+            // Hitung status kesehatan
+            let normalCount = 0;
+            let warningCount = 0;
+            let dangerCount = 0;
+            
+            todayHealthData.forEach(data => {
+                const tempStatus = evaluateTemperatureStatus(data.temperature);
+                const bpStatus = evaluateBloodPressureStatus(
+                    data.bloodPressureSystolic, 
+                    data.bloodPressureDiastolic
+                );
+                
+                if (tempStatus === 'danger' || bpStatus === 'danger') {
+                    dangerCount++;
+                } else if (tempStatus === 'warning' || bpStatus === 'warning') {
+                    warningCount++;
+                } else {
+                    normalCount++;
                 }
             });
             
-            document.getElementById('healthDataCount').textContent = 
-                `${healthDataCount} dari ${students.length} siswa telah mengisi data kesehatan hari ini.`;
+            // Tampilkan status kesehatan
+            const healthStats = document.getElementById('healthStats');
+            healthStats.innerHTML = `
+                <p>Siswa yang sudah isi data: <strong>${todayHealthData.length}</strong> dari ${students.length}</p>
+                <p>Status Kesehatan:</p>
+                <p>- Normal: <strong>${normalCount}</strong> siswa</p>
+                <p>- Perlu Perhatian: <strong>${warningCount}</strong> siswa</p>
+                <p>- Perlu Tindakan: <strong>${dangerCount}</strong> siswa</p>
+            `;
             
             // Event listener untuk tombol logout
             document.getElementById('logoutBtn').addEventListener('click', function(e) {

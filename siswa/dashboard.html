@@ -7,86 +7,59 @@
     <title>Dashboard Siswa - Peduli Sehatku</title>
     <link rel="stylesheet" href="../style.css">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
     <div class="container">
-        <header class="header animate-fadeIn">
-            <img src="../images/logo-health.png" alt="Logo Peduli Sehatku" class="logo hover-scale" id="schoolLogo">
-            <h1 id="schoolName">Peduli Sehatku</h1>
+        <header class="header">
+            <img src="https://via.placeholder.com/100" alt="Logo Peduli Sehatku" class="logo">
+            <h1>Peduli Sehatku</h1>
             <p>Portal Siswa</p>
         </header>
         
-        <nav class="navbar glass-card">
+        <nav class="navbar">
             <ul class="nav-list">
                 <li class="nav-item">
-                    <a href="dashboard.html" class="nav-link">
-                        <i class="fas fa-home"></i>
-                        <span>Beranda</span>
-                    </a>
+                    <a href="dashboard.html" class="nav-link">Beranda</a>
                 </li>
                 <li class="nav-item">
-                    <a href="isi-kesehatan.html" class="nav-link">
-                        <i class="fas fa-heartbeat"></i>
-                        <span>Isi Data Kesehatan</span>
-                    </a>
+                    <a href="isi-kesehatan.html" class="nav-link">Isi Data Kesehatan</a>
                 </li>
                 <li class="nav-item">
-                    <a href="keluhan.html" class="nav-link">
-                        <i class="fas fa-comment-medical"></i>
-                        <span>Keluhan Kesehatan</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="tips-kesehatan.html" class="nav-link">
-                        <i class="fas fa-lightbulb"></i>
-                        <span>Tips Kesehatan</span>
-                    </a>
+                    <a href="keluhan.html" class="nav-link">Keluhan Kesehatan</a>
                 </li>
                 <li class="nav-item" style="margin-left: auto;">
-                    <a href="#" class="nav-link" id="logoutBtn">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Keluar</span>
-                    </a>
+                    <a href="#" class="nav-link" id="logoutBtn">Keluar</a>
                 </li>
             </ul>
         </nav>
         
-        <main class="dashboard animate-fadeIn">
-            <div class="dashboard-header glass-card">
+        <main class="dashboard">
+            <div class="dashboard-header">
                 <div class="user-info">
-                    <img src="../images/student-avatar.png" alt="Foto Profil" class="user-avatar pulse">
+                    <img src="https://via.placeholder.com/50" alt="Foto Profil" class="user-avatar">
                     <div class="user-details">
                         <h3 id="studentName">Memuat...</h3>
                         <p id="studentClass">Memuat...</p>
                     </div>
                 </div>
-                <div class="today-date">
-                    <i class="fas fa-calendar-day"></i>
-                    <span id="todayDate">Memuat tanggal...</span>
-                </div>
             </div>
             
             <div class="dashboard-content">
-                <div class="dashboard-card health-card" id="healthDataStatus">
+                <div class="dashboard-card" id="healthDataStatus">
                     <div class="card-icon">
-                        <i class="fas fa-heartbeat pulse"></i>
+                        <i class="fas fa-heartbeat"></i>
                     </div>
                     <h3 class="card-title">Data Kesehatan Harian</h3>
                     <div class="card-content" id="healthStatusContent">
-                        <div class="loading-spinner"></div>
                         <p>Memuat status...</p>
                     </div>
                     <div class="mt-3 text-center">
-                        <a href="isi-kesehatan.html" class="btn btn-primary btn-with-icon">
-                            <i class="fas fa-plus-circle"></i>
-                            <span>Isi Data Kesehatan</span>
-                        </a>
+                        <a href="isi-kesehatan.html" class="btn btn-primary">Isi Data Kesehatan</a>
                     </div>
                 </div>
                 
-                <div class="dashboard-card complaint-card">
+                <div class="dashboard-card">
                     <div class="card-icon">
                         <i class="fas fa-comment-medical"></i>
                     </div>
@@ -95,14 +68,11 @@
                         <p>Kamu bisa melaporkan keluhan kesehatan yang kamu alami hari ini.</p>
                     </div>
                     <div class="mt-3 text-center">
-                        <a href="keluhan.html" class="btn btn-primary btn-with-icon">
-                            <i class="fas fa-file-medical"></i>
-                            <span>Laporkan Keluhan</span>
-                        </a>
+                        <a href="keluhan.html" class="btn btn-primary">Laporkan Keluhan</a>
                     </div>
                 </div>
                 
-                <div class="dashboard-card history-card">
+                <div class="dashboard-card">
                     <div class="card-icon">
                         <i class="fas fa-clipboard-list"></i>
                     </div>
@@ -111,87 +81,8 @@
                         <p>Lihat riwayat kesehatan dan tanggapan guru disini.</p>
                     </div>
                     <div class="mt-3 text-center">
-                        <a href="keluhan.html#history" class="btn btn-primary btn-with-icon">
-                            <i class="fas fa-history"></i>
-                            <span>Lihat Riwayat</span>
-                        </a>
+                        <a href="keluhan.html#history" class="btn btn-primary">Lihat Riwayat</a>
                     </div>
-                </div>
-            </div>
-            
-            <div class="health-tips-section mt-4">
-                <h2 class="section-title">Tips Kesehatan Untuk Kamu</h2>
-                
-                <div class="tips-slider">
-                    <div class="tips-card kids">
-                        <div class="tips-card-header">
-                            <img src="../images/handwashing-kids.png" alt="Cuci Tangan" class="tips-image hover-scale">
-                            <h3>Yuk Cuci Tangan!</h3>
-                        </div>
-                        <div class="tips-card-body">
-                            <p>Cuci tangan dengan sabun selama 20 detik, sama dengan menyanyikan lagu "Selamat Ulang Tahun" dua kali. Cuci tangan sebelum makan dan sesudah bermain ya!</p>
-                        </div>
-                    </div>
-                    
-                    <div class="tips-card kids">
-                        <div class="tips-card-header">
-                            <img src="../images/fruits-kids.png" alt="Makan Buah" class="tips-image hover-scale">
-                            <h3>Makan Buah dan Sayur</h3>
-                        </div>
-                        <div class="tips-card-body">
-                            <p>Buah dan sayur membuat tubuhmu kuat seperti superhero! Cobalah makan buah dan sayur dengan lima warna berbeda setiap hari.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="tips-card kids">
-                        <div class="tips-card-header">
-                            <img src="../images/exercise-kids.png" alt="Olahraga" class="tips-image hover-scale">
-                            <h3>Bergerak dan Bermain</h3>
-                        </div>
-                        <div class="tips-card-body">
-                            <p>Bergerak itu menyenangkan! Cobalah bermain di luar rumah selama 60 menit setiap hari. Lompat, lari, atau bermain bola dengan temanmu!</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="health-goal-tracker mt-4 glass-card">
-                <h3><i class="fas fa-trophy"></i> Target Kesehatanku Hari Ini</h3>
-                <div class="goal-items">
-                    <div class="goal-item">
-                        <label class="goal-checkbox">
-                            <input type="checkbox" id="goal1">
-                            <span class="checkmark"></span>
-                            <span class="goal-text">Minum air putih 8 gelas</span>
-                        </label>
-                    </div>
-                    <div class="goal-item">
-                        <label class="goal-checkbox">
-                            <input type="checkbox" id="goal2">
-                            <span class="checkmark"></span>
-                            <span class="goal-text">Makan buah dan sayur</span>
-                        </label>
-                    </div>
-                    <div class="goal-item">
-                        <label class="goal-checkbox">
-                            <input type="checkbox" id="goal3">
-                            <span class="checkmark"></span>
-                            <span class="goal-text">Bergerak aktif 60 menit</span>
-                        </label>
-                    </div>
-                    <div class="goal-item">
-                        <label class="goal-checkbox">
-                            <input type="checkbox" id="goal4">
-                            <span class="checkmark"></span>
-                            <span class="goal-text">Cuci tangan sebelum makan</span>
-                        </label>
-                    </div>
-                </div>
-                <div class="goal-progress">
-                    <div class="progress-bar">
-                        <div class="progress" id="goalProgress" style="width: 0%"></div>
-                    </div>
-                    <div class="progress-text">0% Tercapai</div>
                 </div>
             </div>
         </main>
@@ -201,299 +92,9 @@
         </footer>
     </div>
     
-    <style>
-        /* Card styles */
-        .dashboard-card {
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            overflow: hidden;
-            border-top: 5px solid transparent;
-        }
-        
-        .dashboard-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-        }
-        
-        .health-card {
-            border-top-color: #4FC3F7;
-        }
-        
-        .complaint-card {
-            border-top-color: #FF9800;
-        }
-        
-        .history-card {
-            border-top-color: #9C27B0;
-        }
-        
-        .card-icon {
-            font-size: 3.5rem;
-            margin-bottom: 1.5rem;
-            color: var(--primary);
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        
-        .dashboard-card:hover .card-icon {
-            transform: scale(1.1);
-        }
-        
-        .card-title {
-            font-size: 1.3rem;
-            margin-bottom: 1rem;
-            text-align: center;
-            color: #333;
-            font-weight: 700;
-        }
-        
-        /* Button with icon */
-        .btn-with-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 0.8rem 1.2rem;
-            border-radius: 50px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-with-icon:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        /* Glass card effect */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
-        }
-        
-        /* Animation */
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-            100% {
-                transform: scale(1);
-            }
-        }
-        
-        /* Health goal tracker */
-        .health-goal-tracker {
-            padding: 1.5rem;
-            margin-top: 2rem;
-        }
-        
-        .health-goal-tracker h3 {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #4CAF50;
-            font-size: 1.3rem;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #f0f0f0;
-        }
-        
-        .goal-items {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .goal-item {
-            background-color: rgba(76, 175, 80, 0.1);
-            padding: 0.8rem;
-            border-radius: 10px;
-        }
-        
-        .goal-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            user-select: none;
-            font-weight: 500;
-        }
-        
-        .goal-checkbox input {
-            position: absolute;
-            opacity: 0;
-            cursor: pointer;
-            height: 0;
-            width: 0;
-        }
-        
-        .checkmark {
-            height: 24px;
-            width: 24px;
-            background-color: #fff;
-            border: 2px solid #4CAF50;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .goal-checkbox input:checked ~ .checkmark:after {
-            content: '\f00c';
-            font-family: 'Font Awesome 5 Free';
-            font-weight: 900;
-            color: #4CAF50;
-            font-size: 14px;
-        }
-        
-        .goal-progress {
-            margin-top: 1rem;
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 10px;
-            background-color: #f0f0f0;
-            border-radius: 10px;
-            margin-bottom: 8px;
-        }
-        
-        .progress {
-            height: 100%;
-            background: linear-gradient(90deg, #4CAF50, #8BC34A);
-            border-radius: 10px;
-            transition: width 0.5s ease;
-        }
-        
-        .progress-text {
-            text-align: center;
-            font-weight: 600;
-            color: #4CAF50;
-        }
-        
-        /* Today date */
-        .today-date {
-            background: rgba(255, 255, 255, 0.8);
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 600;
-            color: var(--primary);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        
-        /* Loading spinner */
-        .loading-spinner {
-            width: 30px;
-            height: 30px;
-            border: 3px solid rgba(0, 0, 0, 0.1);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spinner 1s linear infinite;
-            margin: 10px auto;
-        }
-        
-        @keyframes spinner {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-        
-        /* Nav improvements */
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 0.8rem 1.2rem;
-        }
-        
-        /* Media queries */
-        @media (max-width: 768px) {
-            .goal-items {
-                grid-template-columns: 1fr;
-            }
-            
-            .dashboard-header {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: center;
-                text-align: center;
-            }
-            
-            .nav-link span {
-                display: none;
-            }
-            
-            .nav-link {
-                justify-content: center;
-                padding: 0.8rem;
-            }
-        }
-    </style>
-    
     <script src="../database.js"></script>
-    <script src="../storage.js"></script>
-    <script src="../utils.js"></script>
-    <script src="../health-data.js"></script>
     <script src="../scripts.js"></script>
-    <script src="../school-settings.js"></script>
     <script>
-        // Display today's date
-        const currentDate = new Date();
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('todayDate').textContent = currentDate.toLocaleDateString('id-ID', options);
-        
-        // Tampilkan logo dan nama sekolah
-        const settings = getSchoolSettings();
-        document.getElementById('schoolName').textContent = settings.name;
-        document.getElementById('schoolLogo').src = settings.logoUrl;
-        document.title = `Dashboard Siswa - ${settings.name}`;
-        
-        // Health goals tracking
-        const goalCheckboxes = document.querySelectorAll('.goal-checkbox input');
-        const progressBar = document.getElementById('goalProgress');
-        const progressText = document.querySelector('.progress-text');
-        
-        function updateGoalProgress() {
-            const totalGoals = goalCheckboxes.length;
-            const completedGoals = [...goalCheckboxes].filter(cb => cb.checked).length;
-            const progressPercentage = Math.round((completedGoals / totalGoals) * 100);
-            
-            progressBar.style.width = `${progressPercentage}%`;
-            progressText.textContent = `${progressPercentage}% Tercapai`;
-            
-            // Save to local storage
-            const goals = [...goalCheckboxes].map(cb => cb.checked);
-            localStorage.setItem('healthGoals', JSON.stringify(goals));
-        }
-        
-        // Load saved goals
-        const savedGoals = JSON.parse(localStorage.getItem('healthGoals'));
-        if (savedGoals) {
-            savedGoals.forEach((checked, i) => {
-                if (i < goalCheckboxes.length) {
-                    goalCheckboxes[i].checked = checked;
-                }
-            });
-            updateGoalProgress();
-        }
-        
-        goalCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', updateGoalProgress);
-        });
-        
         // Pastikan user sudah login
         if (checkAuth()) {
             const currentUser = getCurrentUser();
@@ -519,43 +120,17 @@
                 const bmiStatus = evaluateBMIStatus(bmi);
                 
                 let statusHTML = `
-                    <div class="health-status-summary">
-                        <p class="health-status-message mb-2"><i class="fas fa-check-circle"></i> Kamu sudah mengisi data kesehatan hari ini.</p>
-                        <div class="health-status-grid">
-                            <div class="health-status-item">
-                                <div class="status-icon"><i class="fas fa-thermometer-half"></i></div>
-                                <div class="status-detail">
-                                    <div class="status-label">Suhu Tubuh</div>
-                                    <div class="status-value">${formatHealthStatus(tempStatus, healthData.temperature + '°C')}</div>
-                                </div>
-                            </div>
-                            <div class="health-status-item">
-                                <div class="status-icon"><i class="fas fa-heartbeat"></i></div>
-                                <div class="status-detail">
-                                    <div class="status-label">Tekanan Darah</div>
-                                    <div class="status-value">${formatHealthStatus(bpStatus, healthData.bloodPressureSystolic + '/' + healthData.bloodPressureDiastolic + ' mmHg')}</div>
-                                </div>
-                            </div>
-                            <div class="health-status-item">
-                                <div class="status-icon"><i class="fas fa-weight"></i></div>
-                                <div class="status-detail">
-                                    <div class="status-label">BMI</div>
-                                    <div class="status-value">${formatHealthStatus(bmiStatus, bmi)}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <p class="mb-2">Kamu sudah mengisi data kesehatan hari ini.</p>
+                    <p class="mb-1">Suhu Tubuh: ${formatHealthStatus(tempStatus, healthData.temperature + '°C')}</p>
+                    <p class="mb-1">Tekanan Darah: ${formatHealthStatus(bpStatus, healthData.bloodPressureSystolic + '/' + healthData.bloodPressureDiastolic + ' mmHg')}</p>
+                    <p class="mb-1">BMI: ${formatHealthStatus(bmiStatus, bmi)}</p>
                 `;
                 
                 healthStatusContent.innerHTML = statusHTML;
-                document.getElementById('healthDataStatus').querySelector('a.btn').innerHTML = 
-                    '<i class="fas fa-eye"></i><span>Lihat Detail</span>';
+                document.getElementById('healthDataStatus').querySelector('a.btn').textContent = 'Lihat Detail';
             } else {
                 healthStatusContent.innerHTML = `
-                    <div class="health-status-empty">
-                        <i class="fas fa-clipboard-list status-empty-icon"></i>
-                        <p>Kamu belum mengisi data kesehatan hari ini. Silakan isi data kesehatanmu untuk hari ini.</p>
-                    </div>
+                    <p>Kamu belum mengisi data kesehatan hari ini. Silakan isi data kesehatanmu untuk hari ini.</p>
                 `;
             }
             
@@ -569,74 +144,5 @@
             setActiveNavLink();
         }
     </script>
-    
-    <style>
-        .health-status-summary {
-            padding: 1rem;
-        }
-        
-        .health-status-message {
-            text-align: center;
-            color: #4CAF50;
-            font-weight: 600;
-        }
-        
-        .health-status-message i {
-            margin-right: 5px;
-        }
-        
-        .health-status-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-top: 0.5rem;
-        }
-        
-        .health-status-item {
-            background-color: rgba(79, 195, 247, 0.1);
-            padding: 1rem;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .status-icon {
-            width: 40px;
-            height: 40px;
-            background-color: rgba(79, 195, 247, 0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            color: var(--primary);
-        }
-        
-        .status-detail {
-            flex: 1;
-        }
-        
-        .status-label {
-            font-size: 0.9rem;
-            color: var(--light-text);
-            margin-bottom: 5px;
-        }
-        
-        .health-status-empty {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 1rem;
-            color: var(--light-text);
-            text-align: center;
-        }
-        
-        .status-empty-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            color: #E0E0E0;
-        }
-    </style>
 </body>
 </html>

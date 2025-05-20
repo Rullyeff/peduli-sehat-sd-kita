@@ -39,8 +39,17 @@
             
             <div class="form-row mb-3">
                 <div class="form-group">
-                    <label for="dateFilter">Pilih Tanggal</label>
+                    <label for="dateFilter">Tanggal</label>
                     <input type="date" id="dateFilter" class="form-select">
+                </div>
+                <div class="form-group">
+                    <label for="statusFilter">Filter Status</label>
+                    <select id="statusFilter" class="form-select">
+                        <option value="all">Semua Status</option>
+                        <option value="normal">Normal</option>
+                        <option value="warning">Perlu Perhatian</option>
+                        <option value="danger">Perlu Tindakan</option>
+                    </select>
                 </div>
                 <div class="form-group" style="align-self: flex-end;">
                     <button id="filterBtn" class="btn btn-primary">Terapkan Filter</button>
@@ -52,10 +61,9 @@
                     <thead>
                         <tr>
                             <th>Nama Siswa</th>
-                            <th>Suhu Tubuh</th>
-                            <th>Berat (kg)</th>
-                            <th>Tinggi (cm)</th>
+                            <th>Suhu</th>
                             <th>Tekanan Darah</th>
+                            <th>Berat/Tinggi</th>
                             <th>BMI</th>
                             <th>Status</th>
                             <th>Aksi</th>
@@ -63,13 +71,13 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td colspan="8">Memuat data...</td>
+                            <td colspan="7">Memuat data...</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             
-            <!-- Modal untuk detail data kesehatan -->
+            <!-- Modal untuk detail kesehatan -->
             <div class="modal" id="healthDetailModal">
                 <div class="modal-content">
                     <span class="close-modal">&times;</span>
@@ -117,16 +125,6 @@
             font-weight: bold;
             cursor: pointer;
         }
-        
-        .health-detail-item {
-            margin-bottom: 0.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .health-detail-item:last-child {
-            border-bottom: none;
-        }
     </style>
     
     <script src="../database.js"></script>
@@ -140,9 +138,11 @@
             document.getElementById('className').textContent = currentUser.class;
             
             // Set tanggal default ke hari ini
-            document.getElementById('dateFilter').value = getTodayDate();
+            const dateFilter = document.getElementById('dateFilter');
+            dateFilter.value = getTodayDate();
+            dateFilter.max = getTodayDate();
             
-            // Load data kesehatan
+            // Load health data
             loadHealthData();
             
             // Event listener untuk tombol filter
@@ -151,66 +151,78 @@
             // Function untuk memuat data kesehatan
             function loadHealthData() {
                 const tableBody = document.querySelector('#healthDataTable tbody');
-                const dateFilter = document.getElementById('dateFilter').value;
+                const selectedDate = document.getElementById('dateFilter').value;
+                const statusFilter = document.getElementById('statusFilter').value;
                 
-                // Ambil semua siswa di kelas yang diajar
+                // Ambil data siswa untuk kelas yang diajar
                 const students = getStudentsByClass(currentUser.class);
                 
+                // Ambil data kesehatan
+                const healthData = getData('healthData');
+                
                 if (students.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="8" class="text-center">Tidak ada siswa di kelas ini.</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="7" class="text-center">Tidak ada siswa di kelas ini.</td></tr>';
                     return;
                 }
                 
                 let tableHTML = '';
-                let hasData = false;
                 
-                // Untuk setiap siswa, cek apakah ada data kesehatan pada tanggal yang dipilih
+                // Untuk setiap siswa, cari data kesehatannya
                 students.forEach(student => {
-                    const healthData = getHealthDataByStudentAndDate(student.id, dateFilter);
+                    const studentHealth = healthData.find(d => 
+                        d.studentId === student.id && d.date === selectedDate
+                    );
                     
-                    if (healthData) {
-                        hasData = true;
-                        
-                        // Hitung BMI
-                        const bmi = calculateBMI(healthData.weight, healthData.height);
-                        const bmiStatus = evaluateBMIStatus(bmi);
-                        
-                        // Evaluasi status suhu dan tekanan darah
-                        const tempStatus = evaluateTemperatureStatus(healthData.temperature);
+                    if (studentHealth) {
+                        // Evaluasi status kesehatan
+                        const tempStatus = evaluateTemperatureStatus(studentHealth.temperature);
                         const bpStatus = evaluateBloodPressureStatus(
-                            healthData.bloodPressureSystolic, 
-                            healthData.bloodPressureDiastolic
+                            studentHealth.bloodPressureSystolic, 
+                            studentHealth.bloodPressureDiastolic
                         );
                         
-                        // Tentukan status kesehatan secara keseluruhan
-                        let overallStatus;
+                        const bmi = calculateBMI(studentHealth.weight, studentHealth.height);
+                        const bmiStatus = evaluateBMIStatus(bmi);
+                        
+                        // Tentukan status keseluruhan
+                        let overallStatus = 'normal';
                         if (tempStatus === 'danger' || bpStatus === 'danger' || bmiStatus === 'danger') {
                             overallStatus = 'danger';
                         } else if (tempStatus === 'warning' || bpStatus === 'warning' || bmiStatus === 'warning') {
                             overallStatus = 'warning';
-                        } else {
-                            overallStatus = 'normal';
+                        }
+                        
+                        // Filter berdasarkan status jika dipilih
+                        if (statusFilter !== 'all' && overallStatus !== statusFilter) {
+                            return;
                         }
                         
                         tableHTML += `
                             <tr>
                                 <td>${student.name}</td>
-                                <td>${formatHealthStatus(tempStatus, healthData.temperature + '°C')}</td>
-                                <td>${healthData.weight} kg</td>
-                                <td>${healthData.height} cm</td>
-                                <td>${healthData.bloodPressureSystolic}/${healthData.bloodPressureDiastolic} mmHg</td>
+                                <td>${formatHealthStatus(tempStatus, studentHealth.temperature + '°C')}</td>
+                                <td>${formatHealthStatus(bpStatus, studentHealth.bloodPressureSystolic + '/' + studentHealth.bloodPressureDiastolic)}</td>
+                                <td>${studentHealth.weight} kg / ${studentHealth.height} cm</td>
                                 <td>${formatHealthStatus(bmiStatus, bmi)}</td>
-                                <td>${formatHealthStatus(overallStatus, overallStatus === 'normal' ? 'Sehat' : 'Perlu Perhatian')}</td>
+                                <td>${formatHealthStatus(overallStatus, overallStatus === 'normal' ? 'Normal' : overallStatus === 'warning' ? 'Perlu Perhatian' : 'Perlu Tindakan')}</td>
                                 <td>
-                                    <button class="btn btn-primary view-health-detail" data-student="${student.id}" data-date="${dateFilter}">Detail</button>
+                                    <button class="btn btn-primary view-health-detail" data-id="${studentHealth.id}">Detail</button>
                                 </td>
+                            </tr>
+                        `;
+                    } else {
+                        tableHTML += `
+                            <tr>
+                                <td>${student.name}</td>
+                                <td colspan="5" class="text-center">Belum mengisi data kesehatan</td>
+                                <td>-</td>
                             </tr>
                         `;
                     }
                 });
                 
-                if (!hasData) {
-                    tableHTML = '<tr><td colspan="8" class="text-center">Tidak ada data kesehatan untuk tanggal yang dipilih.</td></tr>';
+                if (tableHTML === '') {
+                    tableHTML = '<tr><td colspan="7" class="text-center">Tidak ada data kesehatan yang sesuai dengan filter.</td></tr>';
                 }
                 
                 tableBody.innerHTML = tableHTML;
@@ -218,71 +230,80 @@
                 // Tambahkan event listener untuk tombol detail
                 document.querySelectorAll('.view-health-detail').forEach(btn => {
                     btn.addEventListener('click', function() {
-                        const studentId = this.dataset.student;
-                        const date = this.dataset.date;
-                        showHealthDetail(studentId, date);
+                        const healthId = this.dataset.id;
+                        showHealthDetail(healthId);
                     });
                 });
             }
             
             // Function untuk menampilkan detail kesehatan
-            function showHealthDetail(studentId, date) {
+            function showHealthDetail(healthId) {
                 const modal = document.getElementById('healthDetailModal');
                 const modalContent = document.getElementById('healthDetailContent');
                 
                 // Ambil data kesehatan
-                const healthData = getHealthDataByStudentAndDate(studentId, date);
-                const student = getData('users').find(u => u.id === studentId);
+                const healthData = getData('healthData');
+                const healthDetail = healthData.find(d => d.id === healthId);
                 
-                if (!healthData || !student) {
+                if (!healthDetail) {
                     modalContent.innerHTML = '<p>Data tidak ditemukan.</p>';
                     return;
                 }
                 
-                // Hitung dan evaluasi BMI
-                const bmi = calculateBMI(healthData.weight, healthData.height);
-                const bmiStatus = evaluateBMIStatus(bmi);
+                // Ambil data siswa
+                const users = getData('users');
+                const student = users.find(u => u.id === healthDetail.studentId);
                 
-                // Evaluasi status suhu dan tekanan darah
-                const tempStatus = evaluateTemperatureStatus(healthData.temperature);
+                // Evaluasi status kesehatan
+                const tempStatus = evaluateTemperatureStatus(healthDetail.temperature);
                 const bpStatus = evaluateBloodPressureStatus(
-                    healthData.bloodPressureSystolic, 
-                    healthData.bloodPressureDiastolic
+                    healthDetail.bloodPressureSystolic, 
+                    healthDetail.bloodPressureDiastolic
                 );
+                
+                const bmi = calculateBMI(healthDetail.weight, healthDetail.height);
+                const bmiStatus = evaluateBMIStatus(bmi);
                 
                 // Build content HTML
                 let contentHTML = `
                     <div class="mb-3">
-                        <h4>${student.name}</h4>
-                        <p>Tanggal: ${formatDateDisplay(date)}</p>
+                        <h4 class="mb-1">${student ? student.name : 'Tidak diketahui'}</h4>
+                        <p>Kelas: ${student ? student.class : 'Tidak diketahui'}</p>
+                        <p>Tanggal: ${formatDateDisplay(healthDetail.date)}</p>
                     </div>
                     
-                    <div class="health-detail-item">
-                        <strong>Suhu Tubuh:</strong> ${formatHealthStatus(tempStatus, healthData.temperature + '°C')}
-                        ${tempStatus !== 'normal' ? '<p class="mt-1">Catatan: Suhu tubuh tidak normal.</p>' : ''}
+                    <div class="table-container">
+                        <table class="table">
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Nilai</th>
+                                <th>Status</th>
+                            </tr>
+                            <tr>
+                                <td>Suhu Tubuh</td>
+                                <td>${healthDetail.temperature}°C</td>
+                                <td>${formatHealthStatus(tempStatus, tempStatus === 'normal' ? 'Normal' : 'Perlu Perhatian')}</td>
+                            </tr>
+                            <tr>
+                                <td>Tekanan Darah</td>
+                                <td>${healthDetail.bloodPressureSystolic}/${healthDetail.bloodPressureDiastolic} mmHg</td>
+                                <td>${formatHealthStatus(bpStatus, bpStatus === 'normal' ? 'Normal' : 'Perlu Perhatian')}</td>
+                            </tr>
+                            <tr>
+                                <td>Berat Badan</td>
+                                <td>${healthDetail.weight} kg</td>
+                                <td rowspan="2">${formatHealthStatus(bmiStatus, 'BMI: ' + bmi)}</td>
+                            </tr>
+                            <tr>
+                                <td>Tinggi Badan</td>
+                                <td>${healthDetail.height} cm</td>
+                            </tr>
+                        </table>
                     </div>
                     
-                    <div class="health-detail-item">
-                        <strong>Berat Badan:</strong> ${healthData.weight} kg
-                    </div>
-                    
-                    <div class="health-detail-item">
-                        <strong>Tinggi Badan:</strong> ${healthData.height} cm
-                    </div>
-                    
-                    <div class="health-detail-item">
-                        <strong>BMI:</strong> ${formatHealthStatus(bmiStatus, bmi)}
-                        ${bmiStatus !== 'normal' ? '<p class="mt-1">Catatan: BMI tidak dalam kategori normal.</p>' : ''}
-                    </div>
-                    
-                    <div class="health-detail-item">
-                        <strong>Tekanan Darah:</strong> ${formatHealthStatus(bpStatus, healthData.bloodPressureSystolic + '/' + healthData.bloodPressureDiastolic + ' mmHg')}
-                        ${bpStatus !== 'normal' ? '<p class="mt-1">Catatan: Tekanan darah tidak normal.</p>' : ''}
-                    </div>
-                    
-                    <div class="health-detail-item">
-                        <strong>Catatan Tambahan:</strong> 
-                        <p>${healthData.notes || 'Tidak ada catatan'}</p>
+                    <div class="mt-3">
+                        <h4>Catatan:</h4>
+                        <p>${healthDetail.notes || 'Tidak ada catatan'}</p>
                     </div>
                 `;
                 
