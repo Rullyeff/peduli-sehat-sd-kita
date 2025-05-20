@@ -13,8 +13,8 @@
 <body>
     <div class="container">
         <header class="header">
-            <img src="../images/logo-health.png" alt="Logo Peduli Sehatku" class="logo">
-            <h1>Peduli Sehatku</h1>
+            <img src="../images/logo-health.png" alt="Logo Peduli Sehatku" class="logo" id="schoolLogo">
+            <h1 id="schoolName">Peduli Sehatku</h1>
             <p>Portal Guru</p>
         </header>
         
@@ -121,9 +121,18 @@
     
     <script src="../database.js"></script>
     <script src="../scripts.js"></script>
+    <script src="../school-settings.js"></script>
     <script>
         // Pastikan user sudah login
         if (checkAuth()) {
+            // Inisialisasi pengaturan sekolah jika belum ada
+            initializeSchoolSettings();
+            
+            // Tampilkan pengaturan sekolah
+            const settings = getSchoolSettings();
+            document.getElementById('schoolName').textContent = settings.name;
+            document.getElementById('schoolLogo').src = settings.logoUrl;
+            
             const currentUser = getCurrentUser();
             
             // Tampilkan info guru

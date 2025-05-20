@@ -13,13 +13,24 @@
 <body>
     <div class="container">
         <header class="header">
-            <img src="images/logo-health.png" alt="Logo Peduli Sehatku" class="logo">
-            <h1>Peduli Sehatku</h1>
+            <img src="images/logo-health.png" alt="Logo Peduli Sehatku" class="logo" id="schoolLogo">
+            <h1 id="schoolName">Peduli Sehatku</h1>
             <p>Aplikasi Pemantau Kesehatan Anak SD</p>
         </header>
         
         <main class="main-content">
             <div class="login-container">
+                <div class="weather-widget">
+                    <div class="weather-icon">
+                        <i class="fas fa-cloud-sun" id="weatherIcon"></i>
+                    </div>
+                    <div class="weather-info">
+                        <h3 id="weatherLocation">Jakarta</h3>
+                        <p id="weatherTemp">28°C</p>
+                        <p id="weatherCondition">Cerah</p>
+                    </div>
+                </div>
+                
                 <h2 class="section-title">Masuk ke Akun Anda</h2>
                 
                 <div class="login-options">
@@ -45,6 +56,19 @@
                         <p>Lupa kata sandi? Hubungi Admin Sekolah</p>
                     </div>
                 </div>
+                
+                <div class="health-tip-widget">
+                    <h3>Tip Kesehatan Hari Ini</h3>
+                    <div class="health-tip" id="dailyHealthTip">
+                        <div class="tip-icon">
+                            <img src="images/handwashing.png" alt="Tip Icon" id="tipIcon">
+                        </div>
+                        <div class="tip-content">
+                            <h4 id="tipTitle">Cuci Tangan</h4>
+                            <p id="tipDescription">Cuci tangan dengan sabun selama 20 detik untuk mencegah penyebaran kuman.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <div class="illustration">
@@ -57,13 +81,119 @@
         </footer>
     </div>
     
+    <style>
+        .weather-widget {
+            background-color: #e3f2fd;
+            border-radius: 12px;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .weather-icon {
+            font-size: 2.5rem;
+            color: #2196F3;
+            margin-right: 15px;
+        }
+        
+        .weather-info h3 {
+            margin: 0;
+            font-size: 1rem;
+        }
+        
+        .weather-info p {
+            margin: 5px 0 0;
+            font-size: 0.9rem;
+        }
+        
+        .health-tip-widget {
+            margin-top: 20px;
+            background-color: #f1f8e9;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .health-tip-widget h3 {
+            margin-top: 0;
+            font-size: 1.1rem;
+            color: #558b2f;
+            border-bottom: 1px solid #dcedc8;
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .health-tip {
+            display: flex;
+            align-items: center;
+        }
+        
+        .tip-icon {
+            flex: 0 0 50px;
+            margin-right: 15px;
+        }
+        
+        .tip-icon img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+        
+        .tip-content h4 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: #33691e;
+        }
+        
+        .tip-content p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+    </style>
+    
     <script src="database.js"></script>
     <script src="scripts.js"></script>
+    <script src="weather.js"></script>
+    <script src="health-tips.js"></script>
+    <script src="school-settings.js"></script>
     <script>
         // Setup database jika pertama kali diakses
         if (!localStorage.getItem('peduli_sehatku_initialized')) {
             initializeDatabase();
         }
+        
+        // Inisialisasi pengaturan sekolah jika belum ada
+        initializeSchoolSettings();
+        
+        // Tampilkan pengaturan sekolah
+        const settings = getSchoolSettings();
+        document.getElementById('schoolName').textContent = settings.name;
+        document.getElementById('schoolLogo').src = settings.logoUrl;
+        document.title = settings.name + " - Login";
+        
+        // Ambil dan tampilkan data cuaca
+        async function loadWeather() {
+            const weatherData = await getWeatherData();
+            document.getElementById('weatherLocation').textContent = weatherData.location;
+            document.getElementById('weatherTemp').textContent = `${weatherData.temperature}°C`;
+            document.getElementById('weatherCondition').textContent = weatherData.condition;
+            document.getElementById('weatherIcon').className = getWeatherIcon(weatherData.condition);
+        }
+        loadWeather();
+        
+        // Ambil dan tampilkan tips kesehatan
+        function loadHealthTip() {
+            const tips = getRandomHealthTips(1);
+            const tip = tips[0];
+            
+            document.getElementById('tipTitle').textContent = tip.title;
+            document.getElementById('tipDescription').textContent = tip.description;
+            document.getElementById('tipIcon').src = `images/${tip.icon}`;
+            document.getElementById('tipIcon').alt = tip.title;
+        }
+        loadHealthTip();
         
         // Event listener untuk form login
         document.getElementById('loginForm').addEventListener('submit', function(e) {
